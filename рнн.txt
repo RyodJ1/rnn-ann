@@ -1,0 +1,29 @@
+import numpy as np
+from tensorflow.keras.models import Sequential
+from tensorflow.keras.layers import SimpleRNN, Dense
+
+def generate_sequence(length):
+    return np.array([i / 10 for i in range(length)])  
+
+sequence = generate_sequence(100)
+X = []
+y = []
+
+seq_len = 5  
+for i in range(len(sequence) - seq_len):
+    X.append(sequence[i:i + seq_len]) 
+    y.append(sequence[i + seq_len])  
+X = np.array(X).reshape(-1, seq_len, 1)  y = np.array(y)
+
+model = Sequential([
+    SimpleRNN(10, activation='tanh', input_shape=(seq_len, 1)),  
+    Dense(1)  
+])
+
+model.compile(optimizer='adam', loss='mse')
+
+model.fit(X, y, epochs=20, batch_size=8, verbose=1)
+
+test_input = np.array([0.5, 0.6, 0.7, 0.8, 0.9]).reshape(1, seq_len, 1)
+prediction = model.predict(test_input)
+print(f"Прогноз следующего числа: {prediction[0][0]}")
